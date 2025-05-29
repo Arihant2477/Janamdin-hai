@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Birthday Cake</title>
+<style>
+  body {
+    background: linear-gradient(135deg, #e1bee7, #f3e5f5);
+    font-family: 'Comic Sans MS', cursive;
+    margin: 0; padding: 50px;
+    text-align: center;
+    overflow-x: hidden;
+  }
+  h1 {
+    color: #6a1b9a;
+    font-size: 3em;
+    margin-bottom: 40px;
+  }
+  #cake {
+    position: relative;
+    margin: 0 auto;
+    width: 280px;
+    height: 300px;
+  }
+  /* Cake base */
+  .cake-layer {
+    background: #ce93d8;
+    border-radius: 0 0 40px 40px;
+    width: 220px;
+    height: 100px;
+    margin: 0 auto;
+    box-shadow: inset 0 0 10px #a052a0;
+    position: relative;
+  }
+  .cake-layer.top {
+    height: 80px;
+    margin-bottom: 10px;
+    background: #ba68c8;
+    box-shadow: inset 0 0 12px #903f9b;
+  }
+
+  /* Candle base */
+  .candle {
+    position: absolute;
+    width: 12px;
+    height: 60px;
+    background: #ffd700;
+    border-radius: 4px;
+    box-shadow: 0 0 8px #ffd700aa;
+  }
+  /* Candle wick */
+  .wick {
+    position: absolute;
+    top: 2px; left: 5px;
+    width: 2px;
+    height: 10px;
+    background: black;
+  }
+  /* Flame */
+  .flame {
+    position: absolute;
+    top: -18px; left: 3px;
+    width: 10px;
+    height: 18px;
+    background: radial-gradient(circle at 50% 50%, #ffeb3b, #ff9800);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    filter: drop-shadow(0 0 3px #ff9800);
+    animation: flicker 1s infinite;
+  }
+  .flame.extinguished {
+    background: transparent;
+    filter: none;
+    animation: none;
+  }
+
+  @keyframes flicker {
+    0%, 100% { transform: translateX(0) translateY(0); opacity: 1; }
+    50% { transform: translateX(1px) translateY(1px); opacity: 0.8; }
+  }
+
+  /* Position candles */
+  #candle1 { left: 50px; }
+  #candle2 { left: 90px; }
+  #candle3 { left: 130px; }
+  #candle4 { left: 170px; }
+  #candle5 { left: 210px; }
+
+  button {
+    margin-top: 40px;
+    background: #7b1fa2;
+    color: white;
+    border: none;
+    padding: 14px 36px;
+    font-size: 1.3em;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 12px #8e24aa88;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #9c27b0;
+  }
+  #wish {
+    margin-top: 40px;
+    font-size: 2em;
+    color: #4a148c;
+    font-weight: bold;
+    display: none;
+  }
+
+  /* Balloon border */
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    top: 0; bottom: 0;
+    width: 30px;
+    background: repeating-linear-gradient(
+      45deg,
+      #d1c4e9,
+      #d1c4e9 15px,
+      #b39ddb 15px,
+      #b39ddb 30px
+    );
+    z-index: 10000;
+  }
+  body::before {
+    left: 0;
+  }
+  body::after {
+    right: 0;
+  }
+
+  /* Confetti canvas full screen */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+</style>
+</head>
+<body>
+
+<h1>Blow out the candles!</h1>
+
+<div id="cake">
+  <div class="cake-layer top"></div>
+  <div class="cake-layer"></div>
+
+  <div class="candle" id="candle1"><div class="wick"></div><div class="flame"></div></div>
+  <div class="candle" id="candle2"><div class="wick"></div><div class="flame"></div></div>
+  <div class="candle" id="candle3"><div class="wick"></div><div class="flame"></div></div>
+  <div class="candle" id="candle4"><div class="wick"></div><div class="flame"></div></div>
+  <div class="candle" id="candle5"><div class="wick"></div><div class="flame"></div></div>
+</div>
+
+<button id="blow-button">Blow Out Candles</button>
+<div id="wish">🎂 Happy Birthday! 🎉🎈🎁</div>
+
+<a href="index.html" class="button" style="display:inline-block; margin-top:30px; background:#6a1b9a; padding:12px 28px; border-radius:8px; color:#fff; text-decoration:none;">Back to Start</a>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+  const flames = document.querySelectorAll('.flame');
+  const blowBtn = document.getElementById('blow-button');
+  const wish = document.getElementById('wish');
+
+  blowBtn.addEventListener('click', () => {
+    flames.forEach(f => f.classList.add('extinguished'));
+    wish.style.display = 'block';
+    blowBtn.disabled = true;
+  });
+
+  // Confetti from previous pages
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  class Confetti {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height - canvas.height;
+      this.size = Math.random() * 8 + 4;
+      this.speed = Math.random() * 3 + 2;
+      this.color = `hsl(${Math.random() * 360}, 70%, 70%)`;
+      this.tilt = Math.random() * 10 - 10;
+      this.tiltSpeed = (Math.random() * 0.1) + 0.05;
+    }
+    update() {
+      this.y += this.speed;
+      this.x += Math.sin(this.tilt) * 0.5;
+      this.tilt += this.tiltSpeed;
+      if (this.y > canvas.height) {
+        this.y = -this.size;
+        this.x = Math.random() * canvas.width;
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.lineWidth = this.size / 2;
+      ctx.strokeStyle = this.color;
+      ctx.moveTo(this.x + this.tilt + this.size / 2, this.y);
+      ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.size / 2);
+      ctx.stroke();
+    }
+  }
+
+  const confettiPieces = [];
+  for (let i=0; i<150; i++) confettiPieces.push(new Confetti());
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiPieces.forEach(c => {
+      c.update();
+      c.draw();
+    });
+    requestAnimationFrame(render);
+  }
+  render();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+</script>
+
+</body>
+</html>

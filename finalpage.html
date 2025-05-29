@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>You're Special!</title>
+<style>
+  body {
+    background-color: #f0dffb;
+    font-family: 'Comic Sans MS', cursive;
+    text-align: center;
+    margin: 0; padding: 50px;
+    overflow-x: hidden;
+  }
+  h1 {
+    color: #9932cc;
+    font-size: 2.8em;
+  }
+  p {
+    font-size: 1.3em;
+    color: #5a2a74;
+    margin-top: 20px;
+  }
+  a.button {
+    display: inline-block;
+    margin-top: 40px;
+    background: #9932cc;
+    color: white;
+    text-decoration: none;
+    font-size: 1.3em;
+    padding: 14px 32px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(153, 50, 204, 0.4);
+    transition: background 0.3s ease;
+  }
+  a.button:hover {
+    background: #b366e6;
+  }
+
+  /* Balloon border */
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    top: 0; bottom: 0;
+    width: 30px;
+    background: repeating-linear-gradient(
+      45deg,
+      #cdb4db,
+      #cdb4db 15px,
+      #e9d8fd 15px,
+      #e9d8fd 30px
+    );
+    z-index: 10000;
+  }
+  body::before {
+    left: 0;
+  }
+  body::after {
+    right: 0;
+  }
+
+  /* Confetti canvas full screen */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+</style>
+</head>
+<body>
+
+<h1>🌟 You're Truly Special!</h1>
+<p>This is just the beginning of the surprises!</p>
+<a href="newpage.html" class="button">Next Page</a>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  class Confetti {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height - canvas.height;
+      this.size = Math.random() * 8 + 4;
+      this.speed = Math.random() * 3 + 2;
+      this.color = `hsl(${Math.random() * 360}, 70%, 70%)`;
+      this.tilt = Math.random() * 10 - 10;
+      this.tiltSpeed = (Math.random() * 0.1) + 0.05;
+    }
+    update() {
+      this.y += this.speed;
+      this.x += Math.sin(this.tilt) * 0.5;
+      this.tilt += this.tiltSpeed;
+      if (this.y > canvas.height) {
+        this.y = -this.size;
+        this.x = Math.random() * canvas.width;
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.lineWidth = this.size / 2;
+      ctx.strokeStyle = this.color;
+      ctx.moveTo(this.x + this.tilt + this.size / 2, this.y);
+      ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.size / 2);
+      ctx.stroke();
+    }
+  }
+
+  const confettiPieces = [];
+  for (let i=0; i<150; i++) confettiPieces.push(new Confetti());
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiPieces.forEach(c => {
+      c.update();
+      c.draw();
+    });
+    requestAnimationFrame(render);
+  }
+  render();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+</script>
+
+</body>
+</html>

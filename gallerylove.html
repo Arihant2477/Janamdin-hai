@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Photo Gallery</title>
+<style>
+  body {
+    background-color: #fdf6e3;
+    font-family: 'Comic Sans MS', cursive;
+    text-align: center;
+    padding: 50px;
+    margin: 0;
+    overflow-x: hidden;
+  }
+  h1 {
+    color: #b22222;
+    font-size: 2.8em;
+  }
+  .frames {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin: 25px 0;
+  }
+  .frame {
+    width: 130px;
+    height: 130px;
+    border: 3px dashed #a94a4a;
+    border-radius: 20px;
+    background: #fff0f0;
+    box-shadow: 2px 2px 12px #d3a0a0;
+  }
+  p {
+    max-width: 400px;
+    margin: 25px auto 0 auto;
+    font-size: 1.4em;
+    color: #802222;
+    font-weight: bold;
+  }
+  a.button {
+    display: inline-block;
+    margin-top: 40px;
+    background: #b22222;
+    color: white;
+    text-decoration: none;
+    font-size: 1.3em;
+    padding: 14px 32px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(178, 34, 34, 0.5);
+    transition: background 0.3s ease;
+  }
+  a.button:hover {
+    background: #d45a5a;
+  }
+
+  /* Balloon border */
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    top: 0; bottom: 0;
+    width: 30px;
+    background: repeating-linear-gradient(
+      45deg,
+      #f7cac9,
+      #f7cac9 15px,
+      #f2b5b5 15px,
+      #f2b5b5 30px
+    );
+    z-index: 10000;
+  }
+  body::before {
+    left: 0;
+  }
+  body::after {
+    right: 0;
+  }
+
+  /* Confetti canvas full screen */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+</style>
+</head>
+<body>
+
+<h1>Photo Gallery</h1>
+
+<div class="frames">
+  <div class="frame"></div>
+  <div class="frame"></div>
+  <div class="frame"></div>
+</div>
+
+<p>You mean the world to us! Always remember that.</p>
+
+<a href="cakepage.html" class="button">Next Page</a>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  class Confetti {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height - canvas.height;
+      this.size = Math.random() * 8 + 4;
+      this.speed = Math.random() * 3 + 2;
+      this.color = `hsl(${Math.random() * 360}, 70%, 70%)`;
+      this.tilt = Math.random() * 10 - 10;
+      this.tiltSpeed = (Math.random() * 0.1) + 0.05;
+    }
+    update() {
+      this.y += this.speed;
+      this.x += Math.sin(this.tilt) * 0.5;
+      this.tilt += this.tiltSpeed;
+      if (this.y > canvas.height) {
+        this.y = -this.size;
+        this.x = Math.random() * canvas.width;
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.lineWidth = this.size / 2;
+      ctx.strokeStyle = this.color;
+      ctx.moveTo(this.x + this.tilt + this.size / 2, this.y);
+      ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.size / 2);
+      ctx.stroke();
+    }
+  }
+
+  const confettiPieces = [];
+  for (let i=0; i<150; i++) confettiPieces.push(new Confetti());
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiPieces.forEach(c => {
+      c.update();
+      c.draw();
+    });
+    requestAnimationFrame(render);
+  }
+  render();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+</script>
+
+</body>
+</html>
